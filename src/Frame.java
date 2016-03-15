@@ -9,6 +9,7 @@ public class Frame {
 	int x = 10;
 	int y = 10;
 	int currentBall = 0;
+	private boolean sine;
 	
 	ArrayList<BallMover> balls = new ArrayList<BallMover>();
 	
@@ -33,7 +34,7 @@ public class Frame {
 		
 	}
 	
-	public void selectBall(int i){
+	public synchronized void selectBall(int i){
 		balls.get(currentBall).selected = false;
 		currentBall = currentBall+i;
 		if(currentBall<0){
@@ -45,7 +46,7 @@ public class Frame {
 		balls.get(currentBall).selected=true;
 	}
 	
-	public void moveBall(int i){
+	public synchronized void moveBall(int i){
 		if(!allSelected){
 			balls.get(currentBall).ball.y_pos+=i;
 		}else{
@@ -55,29 +56,39 @@ public class Frame {
 		}
 	}
 	
-	public void moveCurrentTo(int i){
+	public synchronized void moveCurrentTo(int i){
 		balls.get(currentBall).moveTo(i);
 		Thread runner = new Thread(balls.get(currentBall));
 		runner.start();
 	}
 	
-	public void sineWave(){
+	public synchronized void sineWave(){
+		sine = true;
 		Thread runnerSineWave = new Thread(new SineWave(this.render));
 		runnerSineWave.start();
 
 	}
+	public synchronized void dataModel(){
+		sine = false;
+		Thread runnerDataModel = new Thread(new DataModel(this.render));
+		runnerDataModel.start();
+
+	}
+	public synchronized boolean getSine(){
+		return sine;
+	}
 	
-	public void moveBallTo(int i, int y){
+	public synchronized void moveBallTo(int i, int y){
 		balls.get(i).moveTo(y);
 		Thread runner = new Thread(balls.get(i));
 		runner.start();
 	}
 	
-	public void colorBall(Color c){
+	public synchronized void colorBall(Color c){
 		balls.get(currentBall).ball.color=c;
 	}
 	
-	public void toggleAll(){
+	public synchronized void toggleAll(){
 		allSelected = !allSelected;
 	}
 

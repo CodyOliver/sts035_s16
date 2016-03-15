@@ -120,6 +120,10 @@ public class Renderer extends JPanel {
             		render.artFrame.sineWave();
             	}
             	
+            	if(key==KeyEvent.VK_T){
+            		render.artFrame.dataModel();
+            	}
+            	
             	
             	if(key==KeyEvent.VK_A){
             		render.artFrame.toggleAll();

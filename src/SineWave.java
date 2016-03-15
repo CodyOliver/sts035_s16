@@ -17,7 +17,7 @@ public class SineWave implements Runnable{
 		
 		double num = (double)render.artFrame.balls.size();
 		
-		while(count<200){
+		while(count<200 && render.artFrame.getSine()){
 			
 			
 			for(BallMover bm: render.artFrame.balls){
@@ -31,7 +31,7 @@ public class SineWave implements Runnable{
 			render.repaint();
 			
 			try {
-				Thread.sleep(100);
+				Thread.sleep(200);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

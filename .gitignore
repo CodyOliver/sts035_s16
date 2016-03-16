@@ -1,0 +1,58 @@
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# pycharm docs
+*.idea
+
+# compiled python
+*.pyc
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Temporary Files
+*.swp
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# Editor junk
+*~
+
+#ROS specific
+/build
+/devel
+.catkin_workspace
+
+#other repositories
+/acl-ros-pkg
+/raven_rviz
+/3dtk
+/apriltags_ros
+/iai_kinect2
+
+CATKIN_IGNORE

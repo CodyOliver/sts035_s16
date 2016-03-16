@@ -6,6 +6,8 @@ balls_list =[]
 radius = 10
 num_balls = 40
 
+ball_objects = [0]*num_balls
+
     
 def setupBalls(num,rad):
     ball_list = []
@@ -15,16 +17,20 @@ def setupBalls(num,rad):
 
 
 def showBalls(balls,rad):
-    for ball in balls:
-        canvas.create_oval(ball[0],ball[1],ball[0]+2*rad,ball[1]+2*rad)
+    for i in range(0,len(balls)):
+        ball = balls[i]
+        ball_tag = 'ball'+str(i)
+        balls[i] = (canvas.create_oval(ball[0],ball[1],ball[0]+2*rad,ball[1]+2*rad),ball[0],ball[1])
+        #print oval
+        #ball_objects[i] = oval
+
+    print ball_objects
         
     root.mainloop()
 
 def onKeyPress(event):
     character = event.char
-    if character == 'r':
-        print 'typed r'
-        moveBalls()
+    
     if character in ['2','3','4','5','6','7','8','9']:
         moveBallsTo(int(character))
 
@@ -32,6 +38,21 @@ def onKeyPress(event):
         graph0()
     if character == '1':
         graph1()
+
+    if character == 'd':
+        canvas.move(balls_list[0][0],0,10)
+
+    if character == 'r':
+        for ball in balls_list:
+            canvas.itemconfigure(ball[0],fill='red')
+
+    if character == 'b':
+        for ball in balls_list:
+            canvas.itemconfigure(ball[0],fill='blue')
+
+    if character == 'g':
+        for ball in balls_list:
+            canvas.itemconfigure(ball[0],fill='green')
 
 def moveBalls():
     canvas.delete('all')
@@ -75,22 +96,34 @@ class ballThread (threading.Thread):
         done = False
         moved = [1]*len(self.goals)
 
+        for i in range(0,len(balls_list)):
+            if i >= len(self.goals):
+                canvas.itemconfigure(balls_list[i][0],fill='')
+
+
         while not done:
             #clear current canvas for next frame            
-            canvas.delete('all')
+            #canvas.delete('all')
             for i in range(0,len(self.goals)):
                 ball = balls_list[i]
-                if ball[1] > self.goals[i]:
-                    balls_list[i] = (ball[0],ball[1]-1)
+
+                #print ball
+                #print self.goals[i]
+                if ball[2] > self.goals[i]:
+                    canvas.move(ball[0],0,-1)
+                    balls_list[i] = (ball[0],ball[1],ball[2]-1)
                     moved[i] = 1
-                elif ball[1] < self.goals[i]:
-                    balls_list[i] =  (ball[0],ball[1]+1)
+                elif ball[2] < self.goals[i]:
+                    canvas.move(ball[0],0,1)
+                    balls_list[i] =(ball[0],ball[1],ball[2]+1)
                     moved[i] = 1
                 else:
                     moved[i] = 0
 
+                #time.sleep(1)
+
                 ball2 = balls_list[i]
-                canvas.create_oval(ball2[0],ball2[1],ball2[0]+2*radius,ball2[1]+2*radius)
+                #canvas.create_oval(ball2[0],ball2[1],ball2[0]+2*radius,ball2[1]+2*radius,fill='red')
                 
             #check to see if all balls in goal positions
             if 1 not in moved:  

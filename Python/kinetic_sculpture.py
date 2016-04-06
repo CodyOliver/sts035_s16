@@ -1,13 +1,14 @@
 from graphics import *
+from Tkinter import *
 import threading
 import time
 
 balls_list =[]
 radius = 10
 num_balls = 40
+done = True
 
 ball_objects = [0]*num_balls
-
     
 def setupBalls(num,rad):
     ball_list = []
@@ -29,17 +30,15 @@ def showBalls(balls,rad):
     root.mainloop()
 
 def onKeyPress(event):
-    character = event.char
+    character = event.keysym
+    print character
     
-    if character in ['2','3','4','5','6','7','8','9']:
-        moveBallsTo(int(character))
-
     if character == '0':
         graph0()
     if character == '1':
         graph1()
 
-    if character == 'd':
+    if character == 'Down':
         canvas.move(balls_list[0][0],0,10)
 
     if character == 'r':
@@ -60,17 +59,9 @@ def moveBalls():
         ball = (ball[0]+5,ball[1]+20)
         canvas.create_oval(ball[0],ball[1],ball[0]+2*radius,ball[1]+2*radius)
 
-def moveBallsTo(num):
-    for i in range(0,10):
-        canvas.delete('all')
-        for ball in balls_list:
-            ball2 = (ball[0]+5,ball[1]+num*10+i*4)
-            canvas.create_oval(ball2[0],ball2[1],ball2[0]+2*radius,ball2[1]+2*radius)
-        time.sleep(1)
-
 def graph0():
     # graph some data plot 
-    thread1 = ballThread(1, "Graph-0", .1,[10,20,30,40,50,60,70,60,50,40,30,20,10,20,30,40,50,60,70,50])
+    thread1 = ballThread(1, "Graph-0", .1,[10,20,30,40,50,60,70,60,50,40,30,20,10,20,30,40,50,60,70,60,50,40])
     thread1.start()
 
 def graph1():
@@ -92,9 +83,10 @@ class ballThread (threading.Thread):
 
         #time.sleep(0) #initial delay for debugging
         print "Starting " + self.name
-        
         done = False
         moved = [1]*len(self.goals)
+
+        threadLock.acquire()
 
         for i in range(0,len(balls_list)):
             if i >= len(self.goals):
@@ -109,6 +101,7 @@ class ballThread (threading.Thread):
 
                 #print ball
                 #print self.goals[i]
+                
                 if ball[2] > self.goals[i]:
                     canvas.move(ball[0],0,-1)
                     balls_list[i] = (ball[0],ball[1],ball[2]-1)
@@ -128,29 +121,24 @@ class ballThread (threading.Thread):
             #check to see if all balls in goal positions
             if 1 not in moved:  
                 done = True #stop while loop -> kill thread
+                threadLock.release()
                 
             time.sleep(animDelay)
             
 
-
         print "Exiting " + self.name
 
-
-# Create new threads
-thread1 = ballThread(1, "Thread-1", .1,[0,10,20,30,40,50])
-# Start new Threads
-thread1.start()
-
+threadLock = threading.Lock()
 
 balls_list = setupBalls(num_balls,radius)  
 
 root = tk.Tk()
 w = num_balls*2*(radius+2)+radius
-root.geometry(str(w)+'x200')
+h = w/3
+root.geometry(str(w)+'x' + str(h))
 root.bind('<KeyPress>', onKeyPress)
 
-canvas = tk.Canvas(root,width=w, height=200)
+canvas = tk.Canvas(root,width=w, height=h)
 canvas.pack()
 
 showBalls(balls_list,radius)
-

@@ -57,6 +57,9 @@ def onKeyPress(event):
     if character == '1':
         graph1()
 
+    if character == '2':
+        graph2()
+
     if character == 'Down':
         moveSelectedBall(10)
 
@@ -70,49 +73,60 @@ def onKeyPress(event):
         selectedIndex = changeSelection(selectedIndex, 1)
 
     if character == 'r':
-        for ball in balls_list:
-            canvas.itemconfigure(ball[0],fill='red')
+        colorAll('red')
 
     if character == 'b':
-        for ball in balls_list:
-            canvas.itemconfigure(ball[0],fill='blue')
+        colorAll('blue')
 
     if character == 'g':
-        for ball in balls_list:
-            canvas.itemconfigure(ball[0],fill='green')
+        colorAll('green')
+
+def colorAll(color):
+    for ball in balls_list:
+            canvas.itemconfigure(ball[0],fill=color)
 
 def graph0():
     # graph some data plot 
-    thread1 = ballThread(1, "Graph-0", .1,[10,20,30,40,50,60,70,60,50,40,30,20,10,20,30,40,50,60,70,60,50,40])
+    thread1 = ballThread(1, "Graph-0",'red', .1,[10,20,30,40,50,60,70,60,50,40,30,20,10,20,30,40,50,60,70,60,50,40])
     thread1.start()
 
 def graph1():
     # draw the mit dome - kinda
-    thread1 = ballThread(1, "Graph-1", .1,[160,160,160,100,100,100,80,80,60,50,44,44,50,60,80,80,100,100,100,160,160,160])
+    thread1 = ballThread(1, "Graph-1", 'white',.1,[160,160,160,100,100,100,80,80,60,50,44,44,50,60,80,80,100,100,100,160,160,160])
     thread1.start()
+    
+def graph2():
+    thread2 = ballThread(1,"Import-Graph",'green',.1,[300, 293, 286, 279, 272, 264, 256, 248, 240, 232, 224, 216, 208, 200, 193, 186, 179, 172, 164, 156, 148, 140, 132, 124, 116, 108, 100, 93, 86, 79, 72, 64, 56, 48, 40, 32, 24, 16, 8, 0])
+    thread2.start()
+
 
 exitFlag = 0
 animDelay = 0.015
 
 class ballThread (threading.Thread):
-    def __init__(self, threadID, name, index,goal_list):
+    def __init__(self, threadID, name, color,index,goal_list):
         threading.Thread.__init__(self)
         self.threadID = threadID
         self.name = name
         self.index = index
         self.goals = goal_list
+        self.color = color
     def run(self):
 
         #time.sleep(0) #initial delay for debugging
         print "Starting " + self.name
         done = False
-        moved = [1]*len(self.goals)
 
         threadLock.acquire()
+
+        colorAll(self.color)
 
         for i in range(0,len(balls_list)):
             if i >= len(self.goals):
                 canvas.itemconfigure(balls_list[i][0],fill='')
+
+        self.goals = self.goals + [0]*(len(balls_list)-len(self.goals))
+        moved = [1]*len(self.goals)
 
 
         while not done:

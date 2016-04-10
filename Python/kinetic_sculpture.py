@@ -8,6 +8,9 @@ radius = 10
 num_balls = 40
 done = True
 
+global selectedIndex
+selectedIndex = 0
+
 ball_objects = [0]*num_balls
     
 def setupBalls(num,rad):
@@ -18,18 +21,38 @@ def setupBalls(num,rad):
 
 
 def showBalls(balls,rad):
+
     for i in range(0,len(balls)):
         ball = balls[i]
         ball_tag = 'ball'+str(i)
         balls[i] = (canvas.create_oval(ball[0],ball[1],ball[0]+2*rad,ball[1]+2*rad),ball[0],ball[1])
         #print oval
         #ball_objects[i] = oval
-
+    canvas.itemconfigure(balls[selectedIndex][0],outline='red')
     print ball_objects
         
     root.mainloop()
 
+def moveSelectedBall(num):
+    ball = balls_list[selectedIndex]
+    canvas.move(ball[0],0,num)
+    balls_list[selectedIndex] = (ball[0],ball[1],ball[2]+num)
+
+def changeSelection(current,i):
+    #color the previous ball back to black
+    canvas.itemconfigure(balls_list[current][0],outline='black')
+    #set new index
+    newIndex = current+i
+    if(newIndex<0):
+        newIndex = num_balls-1
+    elif(newIndex>=num_balls):
+        newIndex = 0
+
+    canvas.itemconfigure(balls_list[newIndex][0],outline='red')
+    return newIndex
+
 def onKeyPress(event):
+    global selectedIndex
     character = event.keysym
     print character
     
@@ -39,7 +62,16 @@ def onKeyPress(event):
         graph1()
 
     if character == 'Down':
-        canvas.move(balls_list[0][0],0,10)
+        moveSelectedBall(10)
+
+    if character == 'Up':
+        moveSelectedBall(-10)
+
+    if character == 'Left':
+        selectedIndex = changeSelection(selectedIndex,-1)
+
+    if character == 'Right':
+        selectedIndex = changeSelection(selectedIndex, 1)
 
     if character == 'r':
         for ball in balls_list:
@@ -52,12 +84,6 @@ def onKeyPress(event):
     if character == 'g':
         for ball in balls_list:
             canvas.itemconfigure(ball[0],fill='green')
-
-def moveBalls():
-    canvas.delete('all')
-    for ball in balls_list:
-        ball = (ball[0]+5,ball[1]+20)
-        canvas.create_oval(ball[0],ball[1],ball[0]+2*radius,ball[1]+2*radius)
 
 def graph0():
     # graph some data plot 
@@ -140,5 +166,6 @@ root.bind('<KeyPress>', onKeyPress)
 
 canvas = tk.Canvas(root,width=w, height=h)
 canvas.pack()
+
 
 showBalls(balls_list,radius)

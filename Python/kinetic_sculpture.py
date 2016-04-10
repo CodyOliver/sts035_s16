@@ -10,28 +10,24 @@ done = True
 
 global selectedIndex
 selectedIndex = 0
-
-ball_objects = [0]*num_balls
     
-def setupBalls(num,rad):
+
+def showBalls(num,rad):
+
     ball_list = []
+
+    #equally space out the balls
     for i in range(0,num_balls):
         ball_list.append(((i*2*rad)+3*(i+1),10))   
+
+    for i in range(0,len(ball_list)):
+        ball = ball_list[i]
+        ball_list[i] = (canvas.create_oval(ball[0],ball[1],ball[0]+2*rad,ball[1]+2*rad),ball[0],ball[1])
+
+    #setup the first selected ball with red outline
+    canvas.itemconfigure(ball_list[selectedIndex][0],outline='red')        
+
     return ball_list
-
-
-def showBalls(balls,rad):
-
-    for i in range(0,len(balls)):
-        ball = balls[i]
-        ball_tag = 'ball'+str(i)
-        balls[i] = (canvas.create_oval(ball[0],ball[1],ball[0]+2*rad,ball[1]+2*rad),ball[0],ball[1])
-        #print oval
-        #ball_objects[i] = oval
-    canvas.itemconfigure(balls[selectedIndex][0],outline='red')
-    print ball_objects
-        
-    root.mainloop()
 
 def moveSelectedBall(num):
     ball = balls_list[selectedIndex]
@@ -154,9 +150,10 @@ class ballThread (threading.Thread):
 
         print "Exiting " + self.name
 
-threadLock = threading.Lock()
 
-balls_list = setupBalls(num_balls,radius)  
+
+#Setup and run code:
+threadLock = threading.Lock()
 
 root = tk.Tk()
 w = num_balls*2*(radius+2)+radius
@@ -167,5 +164,6 @@ root.bind('<KeyPress>', onKeyPress)
 canvas = tk.Canvas(root,width=w, height=h)
 canvas.pack()
 
+balls_list = showBalls(num_balls,radius)
 
-showBalls(balls_list,radius)
+root.mainloop()

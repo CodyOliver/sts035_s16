@@ -1,4 +1,5 @@
 import pandas
+import math
 import sys
 
 '''
@@ -29,8 +30,6 @@ inputPath = str(sys.argv[1])
 num_balls = int(sys.argv[2])
 plot_type = str(sys.argv[3])
 
-#data = pandas.read_csv('/Users/Chengzhendai/Downloads/Content Data Sets.csv')
-
 #read in the csv or xlsx data
 if(inputPath.endswith("csv")):
 	data = pandas.read_csv(inputPath)
@@ -38,9 +37,6 @@ elif(inputPath.endswith("xlsx")):
 	data = pandas.read_excel(inputPath)
 else:
 	raise Exception("incorrect data format")
-
-#data.info()
-#print data 
 
 
 #convert to display height and number of balls available
@@ -60,51 +56,59 @@ print data.values[2][1]  - second column
 '''
 
 values = data.values
-num_data = max(data.shape)
-print num_data
+num_data = len(data.index) #originally it was: max(data.shape)
+print 'num_data: ', num_data
 
-data_ratio = num_balls/num_data
+data_ratio = float(num_balls)/num_data
 
-if(plot_type=="histogram"):
-	if(data_ratio>0):
-		for i in range(0,num_balls):
-			data_index = i/data_ratio
-			ball_positions[i] = int((values[data_index][0]-lowest_value)*height_ratio)
-	else:
-		raise Exception("have not finished coding this data type")
+while data_ratio < 1.0:
+	data = data.groupby(data.index / round(1/data_ratio)).mean()
+	data_ratio = float(num_balls)/len(data.index)
+	#Average every nth row: http://stackoverflow.com/questions/20180324/bin-pandas-dataframe-by-every-x-rows
+	#Select every nth row: http://stackoverflow.com/questions/25055712/pandas-every-nth-row
 
-elif(plot_type=="linear"):
-	data_ratio = num_balls/(num_data-1)
-	if(data_ratio>0):
-		for n in range(0,num_data-1):
-			data = values[n][0]
-			ball_positions[n*data_ratio] = int((data-lowest_value)*height_ratio)
-		
-		ball_positions[len(ball_positions)-1] = int((values[num_data-1][0]-lowest_value)*height_ratio)
-		
-		
-		for i in range(1,num_balls):
-			if ball_positions[i]==0:
-				next_point = (0,0)
 
-				for j in range(i,num_balls):
-					if(ball_positions[j]!=0):
-						next_point = (j,ball_positions[j])
-						break
+try: 
+	if(plot_type=="histogram"):
+		try:
+			if(data_ratio>0):
+				for i in range(0,num_balls):
+					data_index = i/data_ratio
+					ball_positions[i] = int((values[data_index][0]-lowest_value)*height_ratio)
+		except (IndexError, RuntimeError, TypeError, NameError):
+			raise Exception("have not finished coding this data type")
 
-				x1 = i-1
-				x2 = i
-				x3 = next_point[0]
-				y1 = ball_positions[i-1]
-				y3 = next_point[1]
+	elif(plot_type=="linear"):
+		data_ratio = num_balls/(num_data-1)
+		if(data_ratio>0):
+			for n in range(0,num_data-1):
+				data = values[n][0]
+				ball_positions[n*data_ratio] = int((data-lowest_value)*height_ratio)
+			
+			ball_positions[len(ball_positions)-1] = int((values[num_data-1][0]-lowest_value)*height_ratio)
+			
+			
+			for i in range(1,num_balls):
+				if ball_positions[i]==0:
+					next_point = (0,0)
 
-				y2 = (x2-x1)*(y3-y1)/(x3-x1) + y1
+					for j in range(i,num_balls):
+						if(ball_positions[j]!=0):
+							next_point = (j,ball_positions[j])
+							break
 
-				ball_positions[i] = y2
-				
+					x1 = i-1
+					x2 = i
+					x3 = next_point[0]
+					y1 = ball_positions[i-1]
+					y3 = next_point[1]
 
-else:
-		raise Exception("have not finished coding this data type")
+					y2 = (x2-x1)*(y3-y1)/(x3-x1) + y1
+
+					ball_positions[i] = y2		
+
+except (IndexError, RuntimeError, TypeError, NameError):
+	raise Exception("have not finished coding this data type")
 
 
 '''

@@ -5,7 +5,7 @@ import time
 
 balls_list =[]
 radius = 10
-num_balls = 40
+num_balls = 50
 done = True
 
 global selectedIndex

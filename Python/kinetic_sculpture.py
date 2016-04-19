@@ -2,14 +2,68 @@ from graphics import *
 from Tkinter import *
 import threading
 import time
+import smbus
+import sys
+
+bus = smbus.SMBus(1)
+
+# This is the address we setup in the STM32 Program
+address1 = 0x04
+
+# different movement types
+linear = 10
 
 balls_list =[]
 radius = 10
-num_balls = 40
+num_balls = 50
 done = True
 
 global selectedIndex
 selectedIndex = 0
+
+
+def sendToMotors():
+
+    ball_commands = []
+
+    for i in range(10):
+        cmd = balls_list[i][2]
+        cmd = max(min(cmd,255),0)/5
+        ball_commands.append(cmd)
+
+    print ball_commands
+    
+    try:
+        #bus.write_byte(address, value)
+        #bus.write_byte_data(address, 0, value)
+        bus.write_i2c_block_data(address1, linear, ball_commands) 
+    except IOError as e:
+        print e
+
+    return 1
+
+def sendToMotorsCmd(values):
+
+    print values
+
+    ball_commands = []
+
+    for i in range(10):
+        ball_commands.append(values[i]/5)
+
+    print ball_commands
+    
+    try:
+        #bus.write_byte(address, value)
+        #bus.write_byte_data(address, 0, value)
+        bus.write_i2c_block_data(address1, linear, ball_commands) 
+    except IOError as e:
+        print e
+
+    return 1
+
+def reset():
+    sendToMotorsCmd([0,0,0,0,0,0,0,0,0,0])
     
 
 def showBalls(num,rad):
@@ -33,6 +87,7 @@ def moveSelectedBall(num):
     ball = balls_list[selectedIndex]
     canvas.move(ball[0],0,num)
     balls_list[selectedIndex] = (ball[0],ball[1],ball[2]+num)
+    sendToMotors()
 
 def changeSelection(current,i):
     #color the previous ball back to black
@@ -59,6 +114,12 @@ def onKeyPress(event):
 
     if character == '2':
         graph2()
+
+    if character == '3':
+        student_pop_graph()
+
+    if character == '6':
+        reset()
 
     if character == 'Down':
         moveSelectedBall(10)
@@ -99,9 +160,18 @@ def graph2():
     thread2 = ballThread(1,"Import-Graph",'green',.1,[300, 293, 286, 279, 272, 264, 256, 248, 240, 232, 224, 216, 208, 200, 193, 186, 179, 172, 164, 156, 148, 140, 132, 124, 116, 108, 100, 93, 86, 79, 72, 64, 56, 48, 40, 32, 24, 16, 8, 0])
     thread2.start()
 
+def student_pop_graph():
+    data = [12,32,60,50,44,39,46,53,40,35,46,52,52,28,0,122,123,110,113,124,142,148,151,164,178,189,198,192,196,208,219,229,243,246,251,250,245,247,254,256,257,258,264,270,268,267,270,282,298,300]
+    
+    for i in range(len(data)):
+        data[i] = 300-data[i]
+        
+    thread3 = ballThread(1,"Student-population-graph",'green',.1,data)
+    thread3.start()
+
 
 exitFlag = 0
-animDelay = 0.015
+animDelay = 0.001
 
 class ballThread (threading.Thread):
     def __init__(self, threadID, name, color,index,goal_list):
@@ -127,6 +197,8 @@ class ballThread (threading.Thread):
 
         self.goals = self.goals + [0]*(len(balls_list)-len(self.goals))
         moved = [1]*len(self.goals)
+
+        sendToMotorsCmd(self.goals)
 
 
         while not done:

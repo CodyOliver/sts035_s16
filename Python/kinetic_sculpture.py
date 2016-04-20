@@ -6,6 +6,7 @@ import smbus
 import sys
 import serial
 import struct
+import random
 
 ser = serial.Serial('/dev/ttyACM0',9600)
 
@@ -25,7 +26,6 @@ done = True
 
 global selectedIndex
 selectedIndex = 0
-
 
 def sendToLED():
 
@@ -48,7 +48,6 @@ def sendToLED():
     except IOError as e:
         print e
 '''
-
 def sendToMotors():
 
     ball_commands = []
@@ -91,7 +90,6 @@ def sendToMotorsCmd(values):
 
 def reset():
     sendToMotorsCmd([0,0,0,0,0,0,0,0,0,0])
-    
 
 def showBalls(num,rad):
 
@@ -99,7 +97,9 @@ def showBalls(num,rad):
 
     #equally space out the balls
     for i in range(0,num_balls):
-        ball_list.append(((i*2*rad)+3*(i+1),10))   
+        initial_x_pos = (i*2*rad)+3*(i+1)
+        initial_y_pos = 10
+        ball_list.append((initial_x_pos,initial_y_pos))   
 
     for i in range(0,len(ball_list)):
         ball = ball_list[i]
@@ -114,7 +114,7 @@ def moveSelectedBall(num):
     ball = balls_list[selectedIndex]
     canvas.move(ball[0],0,num)
     balls_list[selectedIndex] = (ball[0],ball[1],ball[2]+num)
-    sendToMotors()
+    #sendToMotors()
 
 def changeSelection(current,i):
     #color the previous ball back to black
@@ -170,17 +170,34 @@ def onKeyPress(event):
         selectedIndex = changeSelection(selectedIndex, 1)
 
     if character == 'r':
-        colorAll('red')
+        color(selectedIndex,'red')
 
     if character == 'b':
-        colorAll('blue')
+        color(selectedIndex,'blue')
 
     if character == 'g':
-        colorAll('green')
+        color(selectedIndex,'green')
+
+    if character == 'c':
+        color(selectedIndex,(random.randint(0,255),random.randint(0,255),random.randint(0,255)))
 
 def colorAll(color):
+    '''Color all balls a specific color'''
     for ball in balls_list:
             canvas.itemconfigure(ball[0],fill=color)
+
+def color(ball_id_number, color):
+    '''Set the color of a specific ball to the desired RGB value'''
+    print type(color)
+    if type(color) == tuple:
+        tk_rgb = "#%02x%02x%02x" % color
+        ball = balls_list[ball_id_number]
+        canvas.itemconfigure(ball[0],fill=tk_rgb)
+        #TODO: write line to send to LED
+    elif type(color) == str:
+        ball = balls_list[ball_id_number]
+        canvas.itemconfigure(ball[0],fill=color)
+        #TODO: write line to send to LED
 
 def graph0():
     # graph some data plot 
@@ -211,10 +228,16 @@ def women_at_mit():
        264, 252, 234, 210, 204, 198, 186, 162, 144, 126, 102, 102, 102,
         90,  66,  54,  54,  54,  42,  36,  30,  30,  30,  24]
 
+    r = [random.randint(0,255) for i in range(50)]
+    g = [random.randint(0,255) for i in range(50)]
+    b = [random.randint(0,255) for i in range(50)]
+
+    rgb = [(r[i],g[i],b[i]) for i in range(len(r))]
+
     for i in range(len(data)):
         data[i] = int(data[i])
         
-    thread3 = ballThread(1,"Women at MIT",'pink',.1,data)
+    thread3 = ballThread(1,"Women at MIT",rgb,.1,data)
     thread3.start()
     
 
@@ -223,13 +246,16 @@ exitFlag = 0
 animDelay = 0.001
 
 class ballThread (threading.Thread):
-    def __init__(self, threadID, name, color,index,goal_list):
+    def __init__(self, threadID, name, ball_color,index,goal_list):
         threading.Thread.__init__(self)
         self.threadID = threadID
         self.name = name
         self.index = index
         self.goals = goal_list
-        self.color = color
+        if type(ball_color) == list:
+            self.color = ball_color
+        else:
+            self.color = [ball_color]*len(balls_list)
     def run(self):
 
         #time.sleep(0) #initial delay for debugging
@@ -238,7 +264,8 @@ class ballThread (threading.Thread):
 
         threadLock.acquire()
 
-        colorAll(self.color)
+        #colorAll(self.color)
+
 
         for i in range(0,len(balls_list)):
             if i >= len(self.goals):
@@ -247,8 +274,7 @@ class ballThread (threading.Thread):
         self.goals = self.goals + [0]*(len(balls_list)-len(self.goals))
         moved = [1]*len(self.goals)
 
-        sendToMotorsCmd(self.goals)
-
+        #sendToMotorsCmd(self.goals)
 
         while not done:
             #clear current canvas for next frame            
@@ -258,14 +284,20 @@ class ballThread (threading.Thread):
 
                 #print ball
                 #print self.goals[i]
+
+                ball_id = ball[0] #ID of the ball
+                ball_x = ball[1] #x-position of the ball
+                ball_y = ball[2] #y-position of the ball
                 
-                if ball[2] > self.goals[i]:
-                    canvas.move(ball[0],0,-1)
-                    balls_list[i] = (ball[0],ball[1],ball[2]-1)
+                if ball_y > self.goals[i]:
+                    canvas.move(ball_id,0,-1)
+                    balls_list[i] = (ball_id,ball_x,ball_y-1)
+                    color(i,self.color[i])
                     moved[i] = 1
-                elif ball[2] < self.goals[i]:
-                    canvas.move(ball[0],0,1)
-                    balls_list[i] =(ball[0],ball[1],ball[2]+1)
+                elif ball_y < self.goals[i]:
+                    canvas.move(ball_id,0,1)
+                    balls_list[i] =(ball_id,ball_x,ball_y+1)
+                    color(i,self.color[i])
                     moved[i] = 1
                 else:
                     moved[i] = 0

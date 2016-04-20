@@ -4,14 +4,19 @@ import threading
 import time
 import smbus
 import sys
+import serial
+import struct
+
+ser = serial.Serial('/dev/ttyACM1',9600)
 
 bus = smbus.SMBus(1)
 
 # This is the address we setup in the STM32 Program
 address1 = 0x04
+led_address = 0x08
 
 # different movement types
-linear = 10
+linear = 10l
 
 balls_list =[]
 radius = 10
@@ -21,6 +26,28 @@ done = True
 global selectedIndex
 selectedIndex = 0
 
+
+def sendToLED():
+
+    #led_commands = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]
+    led_commands = [1]
+
+
+    string = ''
+
+    for i in led_commands:
+        string +=struct.pack('!B',i)
+        
+    ser.write(string)
+    return 1
+'''
+    try:
+        #bus.write_byte(led_address, )
+        #bus.write_byte_data(address, 0, value)
+        bus.write_i2c_block_data(led_address, linear, led_commands)
+    except IOError as e:
+        print e
+'''
 
 def sendToMotors():
 
@@ -106,6 +133,12 @@ def onKeyPress(event):
     global selectedIndex
     character = event.keysym
     print character
+
+    if character =="Escape":
+        sys.exit()
+
+    if character =="l":
+        sendToLED()
     
     if character == '0':
         graph0()
@@ -117,6 +150,9 @@ def onKeyPress(event):
 
     if character == '3':
         student_pop_graph()
+
+    if character == "w":
+        women_at_mit()
 
     if character == '6':
         reset()
@@ -168,6 +204,19 @@ def student_pop_graph():
         
     thread3 = ballThread(1,"Student-population-graph",'green',.1,data)
     thread3.start()
+
+def women_at_mit():
+    data = [294, 288, 294, 294, 294, 294, 288, 294, 294, 294, 288, 288, 288,
+       288, 276, 294, 294, 294, 288, 288, 288, 288, 288, 282, 276, 270,
+       264, 252, 234, 210, 204, 198, 186, 162, 144, 126, 102, 102, 102,
+        90,  66,  54,  54,  54,  42,  36,  30,  30,  30,  24]
+
+    for i in range(len(data)):
+        data[i] = int(data[i])
+        
+    thread3 = ballThread(1,"Women at MIT",'pink',.1,data)
+    thread3.start()
+    
 
 
 exitFlag = 0

@@ -7,7 +7,7 @@ import sys
 import serial
 import struct
 
-ser = serial.Serial('/dev/ttyACM1',9600)
+ser = serial.Serial('/dev/ttyACM0',9600)
 
 bus = smbus.SMBus(1)
 

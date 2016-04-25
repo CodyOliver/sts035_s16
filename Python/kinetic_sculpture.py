@@ -27,10 +27,10 @@ global selectedIndex
 selectedIndex = 0
 
 
-def sendToLED():
+def sendToLED(value):
 
     #led_commands = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]
-    led_commands = [1]
+    led_commands = [value]
 
 
     string = ''
@@ -137,8 +137,11 @@ def onKeyPress(event):
     if character =="Escape":
         sys.exit()
 
-    if character =="l":
-        sendToLED()
+    if character =="k":
+        sendToLED(1)
+
+    if character == "l":
+	sendToLED(0)
     
     if character == '0':
         graph0()

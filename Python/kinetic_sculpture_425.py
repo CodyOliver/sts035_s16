@@ -2,13 +2,13 @@ from graphics import *
 from Tkinter import *
 import threading
 import time
-#import smbus
+import smbus
 import sys
-#import serial
+import serial
 import struct
 import random
 
-'''ser = serial.Serial('/dev/ttyACM0',9600)
+ser = serial.Serial('/dev/ttyACM0',9600)
 
 bus = smbus.SMBus(1)
 
@@ -17,7 +17,7 @@ address1 = 0x04
 led_address = 0x08
 
 # different movement types
-linear = 10l'''
+linear = 10l
 
 balls_list =[]
 radius = 10
@@ -31,7 +31,7 @@ def packLED(color, byte_string):
 
     rgb_tuple = color
 
-    #byte_string += '#'
+    byte_string += '#'
 
     for value in rgb_tuple:
         byte_string += struct.pack('!B',value)
@@ -51,7 +51,7 @@ def sendToLED(byte_string):
     except IOError as e:
         print e
 '''
-'''def sendToMotors():
+def sendToMotors():
 
     ball_commands = []
 
@@ -93,7 +93,7 @@ def sendToMotorsCmd(values):
 
 def reset():
     sendToMotorsCmd([0,0,0,0,0,0,0,0,0,0])
-'''
+
 def showBalls(num,rad):
 
     ball_list = []
@@ -279,8 +279,8 @@ class ballThread (threading.Thread):
         self.goals = self.goals + [0]*(len(balls_list)-len(self.goals))
         moved = [1]*len(self.goals)
 
-        print len(self.byte)
-        #sendToMotorsCmd(self.goals)
+        sendToLED(self.byte)
+        sendToMotorsCmd(self.goals)
 
         while not done:
             #clear current canvas for next frame            

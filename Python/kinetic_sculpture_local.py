@@ -27,6 +27,20 @@ done = True
 global selectedIndex
 selectedIndex = 0
 
+def packLED(list_of_colors):
+
+    rgb = list_of_colors
+
+    string = ''
+
+    for i in range(len(rgb)):
+        string += str(i)
+        for value in rgb[i]:
+            string = string + ':' + str(value)
+
+    print string
+    return string
+
 def sendToLED(value):
 
 
@@ -164,6 +178,9 @@ def onKeyPress(event):
     if character == "w":
         women_at_mit()
 
+    if character == 'c':
+        mit_buildings()
+
     if character == '6':
         reset()
 
@@ -232,6 +249,13 @@ def student_pop_graph():
     thread3 = ballThread(1,"Student-population-graph",'green',.1,data)
     thread3.start()
 
+def mit_buildings():
+    ball_positions = [298, 298, 298, 298, 298, 298, 298, 298, 298, 296, 296, 292, 292, 282, 282, 282, 282, 274, 272, 270, 268, 262, 260, 258, 256, 246, 246, 246, 238, 228, 222, 214, 210, 174, 156, 144, 136, 128, 116, 104, 100, 100, 96, 92, 92, 90, 78, 70, 68, 60, 58]
+    ball_color = [(0, 255, 0), (0, 255, 0), (0, 255, 0), (0, 255, 0), (0, 255, 0), (0, 255, 0), (0, 255, 0), (0, 255, 0), (0, 255, 0), (0, 255, 0), (0, 255, 0), (0, 255, 0), (0, 255, 0), (0, 255, 0), (0, 255, 0), (0, 255, 0), (0, 255, 0), (255, 0, 0), (255, 0, 0), (255, 0, 0), (255, 0, 0), (255, 0, 0), (255, 0, 0), (255, 0, 0), (255, 0, 0), (255, 0, 0), (255, 0, 0), (255, 0, 0), (255, 0, 0), (255, 0, 0), (255, 0, 0), (255, 0, 0), (255, 0, 0), (255, 0, 0), (255, 0, 0), (255, 0, 0), (255, 0, 0), (255, 0, 0), (255, 0, 0), (255, 0, 0), (255, 0, 0), (255, 0, 0), (255, 0, 0), (255, 0, 0), (255, 0, 0), (255, 0, 0), (255, 0, 0), (255, 0, 0), (255, 0, 0), (255, 0, 0), (255, 0, 0)]
+
+    thread3 = ballThread(1,"MIT Buildings",ball_color,.1,ball_positions)
+    thread3.start()
+
 def women_at_mit():
     data = [294, 288, 294, 294, 294, 294, 288, 294, 294, 294, 288, 288, 288,
        288, 276, 294, 294, 294, 288, 288, 288, 288, 288, 282, 276, 270,
@@ -285,6 +309,7 @@ class ballThread (threading.Thread):
         moved = [1]*len(self.goals)
 
         #sendToMotorsCmd(self.goals)
+        ser.write(packLED(self.color))
 
         while not done:
             #clear current canvas for next frame            

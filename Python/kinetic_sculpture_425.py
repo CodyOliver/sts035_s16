@@ -7,6 +7,7 @@ import sys
 import serial
 import struct
 import random
+import ast
 
 ser = serial.Serial('/dev/ttyACM0',9600)
 
@@ -27,14 +28,17 @@ done = True
 global selectedIndex
 selectedIndex = 0
 
-def packLED(color, byte_string):
+def packLED(list_of_colors):
 
-    rgb_tuple = color
+    rgb = list_of_colors
 
-    #byte_string += ','
+    string = ''
 
-    for value in rgb_tuple:
-        byte_string += struct.pack('!B',value)
+    for i in range(len(rgb)):
+        rgb_tuple = ast.literal_eval(rgb[i])
+        string += str(i)
+        for value in rgb_tuple:
+
 
     return byte_string
 
@@ -223,6 +227,11 @@ def student_pop_graph():
         
     thread3 = ballThread(1,"Student-population-graph",'green',.1,data)
     thread3.start()
+
+def mit_buildings():
+    ball_positions = [298, 298, 298, 298, 298, 298, 298, 298, 298, 296, 296, 292, 292, 282, 282, 282, 282, 274, 272, 270, 268, 262, 260, 258, 256, 246, 246, 246, 238, 228, 222, 214, 210, 174, 156, 144, 136, 128, 116, 104, 100, 100, 96, 92, 92, 90, 78, 70, 68, 60, 58]
+    ball_color = ['(0,255,0)', '(0,255,0)', '(0,255,0)', '(0,255,0)', '(0,255,0)', '(0,255,0)', '(0,255,0)', '(0,255,0)', '(0,255,0)', '(0,255,0)', '(0,255,0)', '(0,255,0)', '(0,255,0)', '(0,255,0)', '(0,255,0)', '(0,255,0)', '(0,255,0)', '(255,0,0)', '(255,0,0)', '(255,0,0)', '(255,0,0)', '(255,0,0)', '(255,0,0)', '(255,0,0)', '(255,0,0)', '(255,0,0)', '(255,0,0)', '(255,0,0)', '(255,0,0)', '(255,0,0)', '(255,0,0)', '(255,0,0)', '(255,0,0)', '(255,0,0)', '(255,0,0)', '(255,0,0)', '(255,0,0)', '(255,0,0)', '(255,0,0)', '(255,0,0)', '(255,0,0)', '(255,0,0)', '(255,0,0)', '(255,0,0)', '(255,0,0)', '(255,0,0)', '(255,0,0)', '(255,0,0)', '(255,0,0)', '(255,0,0)', '(255,0,0)']
+
 
 def women_at_mit():
     data = [294, 288, 294, 294, 294, 294, 288, 294, 294, 294, 288, 288, 288,

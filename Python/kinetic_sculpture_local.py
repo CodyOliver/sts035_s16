@@ -27,24 +27,22 @@ done = True
 global selectedIndex
 selectedIndex = 0
 
-def packLED(color, byte_string):
+def sendToLED(value):
 
-    rgb_tuple = color
 
-    #byte_string += ','
+    #led_commands = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]
+    #led_commands = [value]
+    led_commands = value
 
-    for value in rgb_tuple:
-        byte_string += struct.pack('!B',value)
+    string = ''
 
-    return byte_string
-
-def sendToLED(byte_string):
-    print byte_string
-    #ser.write(byte_string)
-
-    ser.write("0,255,46,69")
-
-    return 'Byte string of length ' + str(len(byte_string)) + ' sent to LEDs'
+    for i in led_commands:
+        string +=struct.pack('!B',i)
+        
+    ser.write(string)
+    ser.write("hello")
+    print string
+    return 1
 '''
     try:
         #bus.write_byte(led_address, )
@@ -142,8 +140,15 @@ def onKeyPress(event):
     if character =="Escape":
         sys.exit()
 
-    if character =="l":
-        sendToLED()
+    if character =="k":
+        sendToLED([1])
+
+    if character == "l":
+        sendToLED([0])
+
+    if character == "h":
+        #sendToLED([100,20,200])
+        ser.write("0:1:45:556,1:5:67:34,2:677:67:45,3:1:45:556,4:5:67:34,5:677:67:45")
     
     if character == '0':
         graph0()
@@ -160,7 +165,7 @@ def onKeyPress(event):
         women_at_mit()
 
     if character == '6':
-        sys.reset()
+        reset()
 
     if character == 'Down':
         moveSelectedBall(10)
@@ -193,13 +198,16 @@ def colorAll(color):
 
 def color(ball_id_number, color):
     '''Set the color of a specific ball to the desired RGB value'''
+    print type(color)
     if type(color) == tuple:
         tk_rgb = "#%02x%02x%02x" % color
         ball = balls_list[ball_id_number]
         canvas.itemconfigure(ball[0],fill=tk_rgb)
+        #TODO: write line to send to LED
     elif type(color) == str:
         ball = balls_list[ball_id_number]
         canvas.itemconfigure(ball[0],fill=color)
+        #TODO: write line to send to LED
 
 def graph0():
     # graph some data plot 
@@ -254,16 +262,10 @@ class ballThread (threading.Thread):
         self.name = name
         self.index = index
         self.goals = goal_list
-        self.byte = ''
         if type(ball_color) == list:
             self.color = ball_color
-            for color_tuple in ball_color:
-                print color_tuple
-                self.byte = packLED(color_tuple,self.byte)
-                sendToLED(packLED(color_tuple,''))
         else:
             self.color = [ball_color]*len(balls_list)
-
     def run(self):
 
         #time.sleep(0) #initial delay for debugging
@@ -282,12 +284,8 @@ class ballThread (threading.Thread):
         self.goals = self.goals + [0]*(len(balls_list)-len(self.goals))
         moved = [1]*len(self.goals)
 
-        #sendToLED(self.byte)
-        sendToMotorsCmd(self.goals)
+        #sendToMotorsCmd(self.goals)
 
-        print len(self.byte)
-        print self.color
-        
         while not done:
             #clear current canvas for next frame            
             #canvas.delete('all')
@@ -306,13 +304,11 @@ class ballThread (threading.Thread):
                     balls_list[i] = (ball_id,ball_x,ball_y-1)
                     color(i,self.color[i])
                     moved[i] = 1
-
                 elif ball_y < self.goals[i]:
                     canvas.move(ball_id,0,1)
                     balls_list[i] =(ball_id,ball_x,ball_y+1)
                     color(i,self.color[i])
                     moved[i] = 1
-
                 else:
                     moved[i] = 0
 

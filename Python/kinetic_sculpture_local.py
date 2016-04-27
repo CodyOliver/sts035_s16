@@ -178,7 +178,7 @@ def onKeyPress(event):
     if character == "w":
         women_at_mit()
 
-    if character == 'c':
+    if character == 'm':
         mit_buildings()
 
     if character == '6':

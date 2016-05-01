@@ -38,7 +38,12 @@ ser = serial.Serial('/dev/ttyACM0',9600)
 bus = smbus.SMBus(1)
 
 # This is the address we setup in the STM32 Program
-address1 = 0x04
+address1 = 0x01
+address2 = 0x02
+address3 = 0x03
+address4 = 0x04
+address5 = 0x05
+
 led_address = 0x08
 
 # different movement types
@@ -82,56 +87,53 @@ def sendToLED(value):
     ser.write("hello")
     print string
     return 1
-'''
-    try:
-        #bus.write_byte(led_address, )
-        #bus.write_byte_data(address, 0, value)
-        bus.write_i2c_block_data(led_address, linear, led_commands)
-    except IOError as e:
-        print e
-'''
-def sendToMotors():
-
-    ball_commands = []
-
-    for i in range(10):
-        cmd = balls_list[i][2]
-        cmd = max(min(cmd,255),0)/5
-        ball_commands.append(cmd)
-
-    print ball_commands
-    
-    try:
-        #bus.write_byte(address, value)
-        #bus.write_byte_data(address, 0, value)
-        bus.write_i2c_block_data(address1, linear, ball_commands) 
-    except IOError as e:
-        print e
-
-    return 1
 
 def sendToMotorsCmd(values):
-
     print values
 
-    ball_commands = []
+    if len(values)==10:
+        send(1,linear,values)
 
-    for i in range(10):
-        ball_commands.append(values[i]/5)
+    elif len(values)==50:
 
-    print ball_commands
+        ball_commands1 = values[0:10]
+        ball_commands2 = values[10:20]
+        ball_commands3 = values[20:30]
+        ball_commands4 = values[30:40]
+        ball_commands5 = values[40:50]
+
+        send(1,linear,ball_commands1)
+        send(2,linear,ball_commands2)
+        send(3,linear,ball_commands3)
+        send(4,linear,ball_commands4)
+        send(5,linear,ball_commands5)
     
-    try:
-        #bus.write_byte(address, value)
-        #bus.write_byte_data(address, 0, value)
-        bus.write_i2c_block_data(address1, linear, ball_commands) 
-    except IOError as e:
-        print e
+    else:
+        print "incorrect command size"
 
     return 1
 
+def send(i,cmd,positions):
+    address = 0x00
+    if i == 1:
+        address = address1
+    elif i == 2:
+        address = address2
+    elif i == 3:
+        address = address3
+    elif i == 4:
+        address = address4
+    elif i == 5:
+        address = address5
+    try:
+        bus.write_i2c_block_data(address, cmd, positions) 
+    except IOError as e:
+        print "ball_commands for "+str(i)+": "+e
+
+
 def reset():
-    sendToMotorsCmd([0,0,0,0,0,0,0,0,0,0])
+    values = 50*[0]
+    sendToMotorsCmd(values)
 
 def showBalls(num,rad):
 
@@ -156,7 +158,6 @@ def moveSelectedBall(num):
     ball = balls_list[selectedIndex]
     canvas.move(ball[0],0,num)
     balls_list[selectedIndex] = (ball[0],ball[1],ball[2]+num)
-    #sendToMotors()
 
 def changeSelection(current,i):
     #color the previous ball back to black

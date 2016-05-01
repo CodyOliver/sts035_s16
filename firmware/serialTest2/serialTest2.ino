@@ -9,23 +9,22 @@
 // This is an array of leds.  One item for each led in your strip.
 CRGB leds[NUM_LEDS];
 
+const uint8_t header[4] = { 0xDE, 0xAD, 0xBE, 0xEF };
+
+
 int led_values[NUM_LEDS*3];
 int on_switch = 0;
 String message = "";
 
 void setup() {
-  
   // put your setup code here, to run once:
 FastLED.addLeds<WS2811, DATA_PIN, RGB>(leds, NUM_LEDS);
-
 Serial.begin(9600);
 FastLED.showColor(CRGB::Black);
 Serial.println("LED Control");
-
 }
-
-void convertLEDCommands(){
-  
+/*
+void convertLEDCommands(){  
   int index = 0;
   String index_str = "";
   String current_str = "";
@@ -91,11 +90,11 @@ void convertLEDCommands(){
     Serial.print("-");
   }
 }
-
+*/
 void loop() {
-  // put your main code here, to run repeatedly:
   
-  //int new_commandh
+  
+  /*
 
   if (Serial.available() > 0) {
     //on_switch=Serial.parseInt();
@@ -105,8 +104,8 @@ void loop() {
     convertLEDCommands();
     //Serial.println(on_switch);
   }
+  */
   /*
-  
   if (on_switch==1){
     
     FastLED.showColor(CRGB::Green);
@@ -137,6 +136,41 @@ void loop() {
     
   }
   */
+  if(Serial.available()>0){
+
+   // we're going to read led data directly from serial, after we get our header
+  uint8_t b = Serial.read(); 
+  Serial.println(b);
+  bool looksLikeHeader = false;
+  if(b == header[0]) { 
+      looksLikeHeader = true;
+      for(int i=1; looksLikeHeader && (i < sizeof(header)); i++) { 
+        b = Serial.read(); 
+        Serial.println(b); 
+        if(b != header[i]) { 
+          // whoops, not a match, this no longer looks like a header.  
+          looksLikeHeader = false;
+        }
+      }
+    }
+
+    if(looksLikeHeader) { 
+      // hey, we read all the header bytes!  Yay!  Now read the frame data 
+        Serial.readBytes((char*)leds, 3*NUM_LEDS);
+        Serial.println(String(leds[0]));
+               
+      }
+    
+  
+
+  // now show the led data 
+  FastLED.show(); 
+
+  }
+
+  // finally, flush out any data in the serial buffer, as it may have been interrupted oddly by writing out led data:
+  while(Serial.available() > 0) { Serial.read(); } 
+
   
 }
 

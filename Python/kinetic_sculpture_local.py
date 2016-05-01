@@ -32,8 +32,8 @@ def resetDisplay():
     GPIO.cleanup()
 
     
-#resetDisplay()
-GPIO.cleanup()
+resetDisplay()
+#GPIO.cleanup()
 
 ser = serial.Serial('/dev/ttyACM0',9600)
     
@@ -216,6 +216,10 @@ def onKeyPress(event):
 
     if character == "l":
         sendToLED([0])
+
+    if character == "m":
+        ser.write(1234)
+
 
     if character == "h":
         #sendToLED([100,20,200])

@@ -29,9 +29,11 @@ def resetDisplay():
     GPIO.output(pin3, 0)
     GPIO.output(pin4, 0)
     GPIO.output(pin5, 0)
+    GPIO.cleanup()
 
     
 resetDisplay()
+#GPIO.cleanup()
 
 ser = serial.Serial('/dev/ttyACM0',9600)
     
@@ -127,18 +129,15 @@ def send(i,cmd,positions):
     elif i == 5:
         address = address5
     try:
-        bus.write_i2c_block_data(address, cmd, positions) 
+        bus.write_i2c_block_
+
+data(address, cmd, positions) 
     except IOError as e:
-	print "error sending to "+str(i)
-        print e
+        print "ball_commands for "+str(i)+": "+str(e)
 
 
 def reset():
     values = 50*[0]
-    sendToMotorsCmd(values)
-
-def fullLength():
-    values = 50*[254]
     sendToMotorsCmd(values)
 
 def showBalls(num,rad):
@@ -220,26 +219,24 @@ def onKeyPress(event):
     if character == "l":
         sendToLED([0])
 
-    if character == "m":
-        ser.write(1234)
-
+    if character == "z":
+	data = bytearray([0xDE, 0xAD, 0xBE, 0xEF])
+      	ser.write(data)
 
     if character == "h":
         #sendToLED([100,20,200])
         #ser.write("0:1:45:556,1:5:67:34,2:677:67:45,3:1:45:556,4:5:67:34,5:677:67:45")
         #ser.write('0:255:192:203,1:255:192:203,2:255:192:203,3:255:192:203,4:255:192:203,5:255:192:203,6:255:192:203,7:255:192:203,8:255:192:203,9:255:192:203,10:255:192:203,11:255:192:203,12:255:192:203,13:255:192:203,14:255:192:203,15:255:192:203,16:255:192:203,17:255:192:203,18:255:192:203,19:255:192:203,20:255:192:203,21:255:192:203,22:255:192:203,23:255:192:203,24:255:192:203,25:255:192:203,26:255:192:203,27:255:192:203,28:255:192:203,29:255:192:203,30:255:192:203,31:255:192:203,32:255:192:203,33:255:192:203,34:255:192:203,35:255:192:203,36:255:192:203,37:255:192:203,38:255:192:203,39:255:192:203,40:255:192:203,41:255:192:203,42:255:192:203,43:255:192:203,44:255:192:203,45:255:192:203,46:255:192:203,47:255:192:203,48:255:192:203,49:255:192:203,')
-        #ser.write('0:255:192:203,1:255:192:203,2:255:192:203,3:255:192:203,4:255:192:203,5:255:192:203,6:255:192:203,7:255:192:203,8:255:192:203')
-        ser.write("0,102:153:255,255:0:102,1000,400")
-
+        ser.write('0:255:192:203,1:255:192:203,2:255:192:203,3:255:192:203,4:255:192:203,5:255:192:203,6:255:192:203,7:255:192:203,8:255:192:203')
     if character == '0':
-        graph0()
-        resetDisplay()
-        #sendToMotorsCmd([0,0,0,0,0,0,0,0,0,0])
+        #graph0()
+        #resetDisplay()
+        sendToMotorsCmd([0,0,0,0,0,0,0,0,0,0])
         
     if character == '1':
-        graph1()
-        displayState(1)
-        #sendToMotorsCmd([40,10,20,250,250,250,250,70,80,250])
+        #graph1()
+        #displayState(1)
+        sendToMotorsCmd([40,10,20,250,250,250,250,70,80,250])
 
     if character == '2':
         graph2()
@@ -266,15 +263,11 @@ def onKeyPress(event):
     if character == "w":
         women_at_mit()
 
-    if character == "z":
-	fullLength()
-
     if character == 'm':
         mit_buildings()
 
     if character == 's':
         mit_sports()
-        ser.write("0,163:31:52,112:138:154,3300,3300")
 
     if character == '6':
         reset()
@@ -374,8 +367,6 @@ def mit_sports():
     for i in range(len(ball_positions)):
         ball_positions[i] = int(ball_positions[i])
 
-
-
     thread3 = ballThread(1,"MIT Sports",ball_color,.1,ball_positions)
     thread3.start()
 
@@ -441,7 +432,6 @@ class ballThread (threading.Thread):
 
 
         sendToMotorsCmd(self.goals)
-
         #packed = packLED(self.color)
         #ser.write(packed)
         #print type(packed)

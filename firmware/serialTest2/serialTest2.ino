@@ -23,7 +23,7 @@ Serial.begin(9600);
 FastLED.showColor(CRGB::Black);
 Serial.println("LED Control");
 }
-/*
+
 void convertLEDCommands(){  
   int index = 0;
   String index_str = "";
@@ -90,21 +90,18 @@ void convertLEDCommands(){
     Serial.print("-");
   }
 }
-*/
+
+
 void loop() {
   
-  
-  /*
-
   if (Serial.available() > 0) {
     //on_switch=Serial.parseInt();
-    Serial.setTimeout(5000);
     message = Serial.readString();
     Serial.println(message);
     convertLEDCommands();
     //Serial.println(on_switch);
   }
-  */
+  
   /*
   if (on_switch==1){
     
@@ -136,6 +133,8 @@ void loop() {
     
   }
   */
+
+  /*
   if(Serial.available()>0){
 
    // we're going to read led data directly from serial, after we get our header
@@ -171,7 +170,7 @@ void loop() {
   // finally, flush out any data in the serial buffer, as it may have been interrupted oddly by writing out led data:
   while(Serial.available() > 0) { Serial.read(); } 
 
-  
+  */
 }
 
 

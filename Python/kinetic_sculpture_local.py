@@ -267,6 +267,7 @@ def onKeyPress(event):
 
     if character == 's':
         mit_sports()
+        ser.write("0,163:31:52,112:138:154,3300,3300")
 
     if character == '6':
         reset()
@@ -366,6 +367,8 @@ def mit_sports():
     for i in range(len(ball_positions)):
         ball_positions[i] = int(ball_positions[i])
 
+
+
     thread3 = ballThread(1,"MIT Sports",ball_color,.1,ball_positions)
     thread3.start()
 
@@ -431,6 +434,7 @@ class ballThread (threading.Thread):
 
 
         sendToMotorsCmd(self.goals)
+
         #packed = packLED(self.color)
         #ser.write(packed)
         #print type(packed)

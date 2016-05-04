@@ -26,6 +26,7 @@ data4 = data4.reindex(new_index,method='ffill').fillna(0.0).astype(int)
 boston_data = data4.iloc[::3,:]
 
 mit_data = cambridge_data.join(boston_data)
+mit_data = mit_data[-50:]
 mit_data['Total'] = mit_data.sum(axis = 1)
 
 mit_data['RGB'] = numpy.where(mit_data['Cambridge Building Count']>mit_data['Boston Building Count'], '(255,0,0)', '(0,255,0)')
@@ -34,4 +35,7 @@ rgb_list = list(mit_data['RGB'].values)
 for i in range(len(rgb_list)):
 	rgb_list[i] = ast.literal_eval(rgb_list[i])
 
+
 print list(mit_data.index), list(300-2*numpy.array(mit_data['Total'].values)), rgb_list
+mit_data = mit_data['Total']
+mit_data.to_csv('buildings_final.csv')

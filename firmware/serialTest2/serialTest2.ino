@@ -2,7 +2,8 @@
 
 // How many leds are in the strip?
 #define NUM_LEDS 50
-
+//LED brightness
+#define BRIGHTNESS          96
 // Data pin that led data will be written out over
 #define DATA_PIN 3
 
@@ -16,9 +17,11 @@ int led_values[NUM_LEDS*3];
 int on_switch = 0;
 String message = "";
 
+
 void setup() {
   // put your setup code here, to run once:
 FastLED.addLeds<WS2811, DATA_PIN, RGB>(leds, NUM_LEDS);
+FastLED.setBrightness(BRIGHTNESS);
 Serial.begin(9600);
 FastLED.showColor(CRGB::Black);
 Serial.println("LED Control");
@@ -44,6 +47,10 @@ void convertLEDCommands(){
  while (i < message.length()) {
    
    current_str = message.substring(i,i+1);
+
+   if (current_str=="0"){
+    Serial.println("got header!");
+   }
    
    if(current_str=='q'){
           index = i;

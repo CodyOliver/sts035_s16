@@ -3,27 +3,44 @@
 // How many leds are in the strip?
 #define NUM_LEDS 50
 //LED brightness
-#define BRIGHTNESS          96
+#define BRIGHTNESS          80
 // Data pin that led data will be written out over
 #define DATA_PIN 3
+#define COLOR_ORDER RGB
+#define FRAMES_PER_SECOND  120
+
 
 // This is an array of leds.  One item for each led in your strip.
 CRGB leds[NUM_LEDS];
 
 const uint8_t header[4] = { 0xDE, 0xAD, 0xBE, 0xEF };
+uint8_t gHue = 0; // rotating "base color" used by many of the patterns
 
 
 int led_values[NUM_LEDS*3];
 int on_switch = 0;
 String message = "";
 
+int delayRainbow = 20;
+
+boolean rainbow_flag = false;
+
 
 void setup() {
   // put your setup code here, to run once:
 FastLED.addLeds<WS2811, DATA_PIN, RGB>(leds, NUM_LEDS);
 FastLED.setBrightness(BRIGHTNESS);
+//FastLED.showColor(CRGB::Black);
+
+// send the 'leds' array out to the actual LED strip
+FastLED.show();  
+// insert a delay to keep the framerate modest
+FastLED.delay(1000/FRAMES_PER_SECOND);
+
+fill_rainbow( leds, NUM_LEDS, gHue, 7);
+
+
 Serial.begin(9600);
-FastLED.showColor(CRGB::Black);
 Serial.println("LED Control");
 }
 
@@ -33,73 +50,219 @@ void convertLEDCommands(){
   String current_str = "";
   boolean index_found = false;
   
+  int header_end = message.indexOf(',',0);
+  String header_str = message.substring(0,header_end);
+  
   int first_colon = 0;
   int second_colon = 0;
   int third_colon = 0;
+  int fourth_colon = 0;
+  int fifth_colon = 0;
   
   int next_comma = 0;
-  String firstValue = "";
-  String secondValue = "";
-  String thirdValue = "";
+  String first_R = "";
+  String first_G = "";
+  String first_B = "";
+  
+  String second_R = "";
+  String second_G = "";
+  String second_B = "";
   
   int i = 0;
+  
 
  while (i < message.length()) {
    
    current_str = message.substring(i,i+1);
+ 
+   if (header_str=="rainbow"){
+     rainbow_flag = !rainbow_flag;
+     
+   }
+	
 
-   if (current_str=="0"){
-    Serial.println("got header!");
+   if (header_str=="0"){
+    Serial.println("got header 0");
+    // FastLED's built-in rainbow generator
+    fill_rainbow( leds, NUM_LEDS, gHue, 7);
    }
    
-   if(current_str=='q'){
+   if(current_str=="q"){
           index = i;
 
    }else{
-
-     first_colon = message.indexOf(':',index+1);
-     second_colon = message.indexOf(':',first_colon+1);
-     third_colon = message.indexOf(':',second_colon+1);
-     next_comma = message.indexOf(',',third_colon);
-          
-     index_str = message.substring(index+1,first_colon);
-     firstValue = message.substring(first_colon+1,second_colon);
-     secondValue = message.substring(second_colon+1,third_colon);
-     thirdValue = message.substring(third_colon+1,next_comma);
      
-     Serial.print("index:");
-     Serial.println(index_str);
+     int second_comma = message.indexOf(',',header_end+1);
+  int third_comma = message.indexOf(',',second_comma);
+  
+  String time_1 = message.substring(second_comma,third_comma);
+
+     first_colon = message.indexOf(':',header_end+1);
+     second_colon = message.indexOf(':',first_colon+1);
+     next_comma = message.indexOf(',',second_colon);
+          
+     first_R = message.substring(header_end+1,first_colon);
+     first_G = message.substring(first_colon+1,second_colon);
+     first_B = message.substring(second_colon+1,next_comma);
+     
+     index_str = "0";
      
      Serial.print("red value: ");
-     Serial.println(firstValue);
+     Serial.println(first_R );
      Serial.print("blue value: ");
-     Serial.println(secondValue);
+     Serial.println(first_G);
      Serial.print("green value: ");
-     Serial.println(thirdValue);
+     Serial.println(first_G);
+     Serial.print("time value 1: ");
+     Serial.println(time_1);
      
-     led_values[(index_str.toInt())*3] = firstValue.toInt();
-     led_values[(index_str.toInt())*3+1] = secondValue.toInt();
-     led_values[(index_str.toInt())*3+2] = thirdValue.toInt();
+     //led_values[(index_str.toInt())*3] = firstValue.toInt();
+     //led_values[(index_str.toInt())*3+1] = secondValue.toInt();
+     //led_values[(index_str.toInt())*3+2] = thirdValue.toInt();
+     
+     int n=0;
+     
+     int r1 = first_R.toInt();
+     int g1 = first_G.toInt();
+     int b1 = first_B.toInt();
+     
+     int r2 = 255;
+     int g2 = 0;
+     int b2 = 102;
+
+    leds[n].r = r1;
+    leds[n].g = g1; 
+    leds[n].b = b1;
 
      i = next_comma;
      index = i;
+     i = message.length();
+     
+        //colorProgression(r1,g1,b1,r2,g2,b2,time_1.toInt());
+     
+	colorHighlight(r1,g1,b1,r2,g2,b2,time_1.toInt());
+     
    }
    
    
-   //Serial.println(message[i]);
-      
+        
   }
   
-  
+  /*
   Serial.println("led_values:");
   for(int n=0;n<(NUM_LEDS*3);n++){
     Serial.print(led_values[n]);
     Serial.print("-");
   }
+  */
+}
+
+void colorHighlight(int r1,int g1,int b1,int r2,int g2,int b2,int time){
+
+for(int n=0; n < NUM_LEDS; n++) { 
+    leds[n].r = r1;
+    leds[n].g = g1; 
+    leds[n].b = b1;
+   }
+    FastLED.show();
+
+for(int n=0; n < NUM_LEDS; n++) { 
+    leds[n].r = r2;
+    leds[n].g = g2; 
+    leds[n].b = b2;
+   //leds[n-1].r = r1;
+    //leds[n-1].g = g1; 
+    //leds[n-1].b = b1;
+    FastLED.show();
+    delay(time);
+   }
+
+
+
+}
+
+void randomColorProgression(){
+  
+  int r1=0;
+  int g1 = 0;
+  int b1 = 0;
+  int time =0;
+    while(true){
+    
+    r1 = random(0, 255);
+    g1 = random(0, 255);
+    b1 = random(0, 255);
+    time = random(10,400);
+    
+    for(int n=0; n < NUM_LEDS; n++) { 
+    leds[n].r = r1;
+    leds[n].g = g1; 
+    leds[n].b = b1;
+    FastLED.show();
+    delay(time);
+   }
+  }
+  
+}
+
+
+void colorProgression(int r1,int g1,int b1,int r2,int g2,int b2,int time){
+  
+  
+  
+   for(int n=0; n < NUM_LEDS; n++) { 
+    leds[n].r = r1;
+    leds[n].g = g1; 
+    leds[n].b = b1;
+    FastLED.show();
+    delay(500);
+   }
+   for(int n=0; n < NUM_LEDS; n++) { 
+    leds[n].r = r2;
+    leds[n].g = g2; 
+    leds[n].b = b2;
+    FastLED.show();
+    delay(100);
+   }
+   
+   
+  while(true){
+    
+    r1 = random(0, 255);
+    g1 = random(0, 255);
+    b1 = random(0, 255);
+    time = random(10,400);
+    
+    for(int n=0; n < NUM_LEDS; n++) { 
+    leds[n].r = r1;
+    leds[n].g = g1; 
+    leds[n].b = b1;
+    FastLED.show();
+    delay(time);
+   }
+  }
+  
+  
 }
 
 
 void loop() {
+  FastLED.show();
+
+  if(rainbow_flag){
+    
+  fill_rainbow( leds, NUM_LEDS, gHue, 7);
+
+  EVERY_N_MILLISECONDS(delayRainbow) { 
+    if (delayRainbow>20){
+      gHue++;
+    }
+    else{
+      gHue--;
+    } } // slowly cycle the "base color" through the rainbow
+
+  EVERY_N_SECONDS( 5 ) { delayRainbow = random(1,40); } // change patterns periodically
+  }
   
   if (Serial.available() > 0) {
     //on_switch=Serial.parseInt();

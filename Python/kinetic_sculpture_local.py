@@ -15,6 +15,8 @@ pin3 = 04
 pin4 = 17
 pin5 = 27
 
+GPIO.cleanup()
+
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(pin1, GPIO.OUT) # set a port/pin as an output
 GPIO.setup(pin2, GPIO.OUT)    
@@ -57,6 +59,8 @@ done = True
 global selectedIndex
 selectedIndex = 0
 
+current_positions = 50*[0]
+
 def packLED(list_of_colors):
 
     rgb = list_of_colors
@@ -91,6 +95,8 @@ def sendToLED(value):
 def sendToMotorsCmd(values):
     print values
 
+    current_positions = values
+
     if len(values)==10:
         send(1,linear,values)
 
@@ -104,9 +110,9 @@ def sendToMotorsCmd(values):
 
         send(1,linear,ball_commands1)
         send(2,linear,ball_commands2)
-        send(3,linear,ball_commands3)
-        send(4,linear,ball_commands4)
-        send(5,linear,ball_commands5)
+        #send(3,linear,ball_commands3)
+        #send(4,linear,ball_commands4)
+        #send(5,linear,ball_commands5)
 
     
     else:
@@ -131,6 +137,8 @@ def send(i,cmd,positions):
     except IOError as e:
 	print "error sending to "+str(i)
         print e
+
+    #time.sleep(2)
 
 
 def reset():
@@ -163,6 +171,9 @@ def showBalls(num,rad):
 def moveSelectedBall(num):
     ball = balls_list[selectedIndex]
     canvas.move(ball[0],0,num)
+    prev_position = current_positions[selectedIndex]
+    current_positions[selectedIndex] = prev_position + num
+    sendToMotorsCmd(current_positions)
     balls_list[selectedIndex] = (ball[0],ball[1],ball[2]+num)
 
 def changeSelection(current,i):
@@ -214,93 +225,117 @@ def onKeyPress(event):
     if character =="Escape":
         sys.exit()
 
-    if character =="k":
+    elif character =="k":
         sendToLED([1])
 
-    if character == "l":
-        sendToLED([0])
+    elif character == "l":
+        data = 50*[0]
+	data[0:20] = [8,11,14,20,10,5,1,14,7,16,10,5,14,24,4,12,4,4,4,4]
+	sendToMotorsCmd(data)
 
-    if character == "m":
+    elif character == "9":
+	sailboat = 50*[0]
+	sailboat[0:20] = [255,210,255,200,210,140,200,70,200,255,0,200,60,255,130,200,200,255,210,255]
+    	thread1 = ballThread(1, "Salboat", 'white',.1,sailboat)
+    	thread1.start()
+
+    elif character == "m":
         ser.write(1234)
 
 
-    if character == "h":
+    elif character == "h":
         #sendToLED([100,20,200])
         #ser.write("0:1:45:556,1:5:67:34,2:677:67:45,3:1:45:556,4:5:67:34,5:677:67:45")
         #ser.write('0:255:192:203,1:255:192:203,2:255:192:203,3:255:192:203,4:255:192:203,5:255:192:203,6:255:192:203,7:255:192:203,8:255:192:203,9:255:192:203,10:255:192:203,11:255:192:203,12:255:192:203,13:255:192:203,14:255:192:203,15:255:192:203,16:255:192:203,17:255:192:203,18:255:192:203,19:255:192:203,20:255:192:203,21:255:192:203,22:255:192:203,23:255:192:203,24:255:192:203,25:255:192:203,26:255:192:203,27:255:192:203,28:255:192:203,29:255:192:203,30:255:192:203,31:255:192:203,32:255:192:203,33:255:192:203,34:255:192:203,35:255:192:203,36:255:192:203,37:255:192:203,38:255:192:203,39:255:192:203,40:255:192:203,41:255:192:203,42:255:192:203,43:255:192:203,44:255:192:203,45:255:192:203,46:255:192:203,47:255:192:203,48:255:192:203,49:255:192:203,')
         #ser.write('0:255:192:203,1:255:192:203,2:255:192:203,3:255:192:203,4:255:192:203,5:255:192:203,6:255:192:203,7:255:192:203,8:255:192:203')
         ser.write("0,102:153:255,255:0:102,1000,400")
 
-    if character == '0':
+    elif character == '0':
         graph0()
         resetDisplay()
         #sendToMotorsCmd([0,0,0,0,0,0,0,0,0,0])
         
-    if character == '1':
-        graph1()
-        displayState(1)
+    elif character == '1':
+	while True:
+	    graph1()
+	    time.sleep(10)
+	    graph2()
+	    time.sleep(10)
+	    graph0()
+	    time.sleep(10)
+        #graph1()
+        #displayState(1)
         #sendToMotorsCmd([40,10,20,250,250,250,250,70,80,250])
 
-    if character == '2':
+    elif character == '2':
         graph2()
         displayState(2)
 
-    if character == '3':
+    elif character == '3':
         displayState(3)
 
-    if character == '4':
+    elif character == '4':
         displayState(4)
 
-    if character == '5':
+    elif character == '5':
         displayState(5)
 
-    if character == '6':
+    elif character == '6':
         displayState(6)
 
-    if character == 'p':
+    elif character == "g":
+	cmd = 20
+	data = [125,250,0,125,0,0,0,0,0,0]
+	data2 = [125,250,125,255,0,0,0,0,0,0]
+	send(1,cmd,data)
+	time.sleep(1)
+	send(2,cmd,data2)
+
+    elif character == 'p':
         student_pop_graph()
 
-    if character == 'f':
+    elif character == 'f':
         student_faculty_ratio()
 
-    if character == "w":
+    elif character == "w":
         women_at_mit()
 
-    if character == "z":
+    elif character == "z":
 	fullLength()
 
-    if character == 'm':
+    elif character == 'm':
         mit_buildings()
 
-    if character == 's':
+    elif character == 's':
         mit_sports()
         ser.write("0,163:31:52,112:138:154,3300,3300")
 
-    if character == '6':
+    elif character == 'a':
         reset()
 
-    if character == 'Down':
-        moveSelectedBall(10)
+    elif character == 'Down':
+        moveSelectedBall(5)
 
-    if character == 'Up':
-        moveSelectedBall(-10)
+    elif character == 'Up':
+        moveSelectedBall(-5)
 
-    if character == 'Left':
+    elif character == 'Left':
         selectedIndex = changeSelection(selectedIndex,-1)
 
-    if character == 'Right':
+    elif character == 'Right':
         selectedIndex = changeSelection(selectedIndex, 1)
 
-    if character == 'r':
+    elif character == 'r':
         color(selectedIndex,'red')
+	ser.write("rainbow,")
 
-    if character == 'b':
+    elif character == 'b':
         color(selectedIndex,'blue')
 
-    if character == 'g':
+    elif character == 'g':
         color(selectedIndex,'green')
 
-    if character == 'c':
+    elif character == 'c':
         color(selectedIndex,(random.randint(0,255),random.randint(0,255),random.randint(0,255)))
 
 def colorAll(color):

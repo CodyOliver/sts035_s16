@@ -306,11 +306,14 @@ def onKeyPress(event):
     elif character == 'm':
         mit_buildings()
 
-    elif character == 'm':
+    elif character == 'n':
         nobel()
 
-    elif character == 's':
+    elif character == 'e':
         sleep()
+
+    elif character == 'h':
+        satisfaction()
 
     elif character == 's':
         mit_sports()
@@ -386,6 +389,21 @@ def student_pop_graph():
     rgb = [(r[i],g[i],b[i]) for i in range(len(r))]
 
     thread3 = ballThread(1,"Student-population-graph",rgb,.1,ball_positions)
+    thread3.start()
+
+def satisfaction():
+    ball_positions = [150]*50
+
+    for i in range(len(ball_positions)):
+        ball_positions[i] = int(ball_positions[i])
+
+    r = [random.randint(0,255) for i in range(50)]
+    g = [random.randint(0,255) for i in range(50)]
+    b = [random.randint(0,255) for i in range(50)]
+
+    rgb = [(r[i],g[i],b[i]) for i in range(len(r))]
+
+    thread3 = ballThread(1,"Satisfaction",rgb,.1,ball_positions)
     thread3.start()
 
 def student_faculty_ratio():

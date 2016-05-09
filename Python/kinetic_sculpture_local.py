@@ -310,6 +310,9 @@ def onKeyPress(event):
         nobel()
 
     elif character == 's':
+        sleep()
+
+    elif character == 's':
         mit_sports()
         ser.write("0,163:31:52,112:138:154,3300,3300")
 

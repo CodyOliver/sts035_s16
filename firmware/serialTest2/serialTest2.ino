@@ -310,24 +310,48 @@ void loop() {
   
   else if(satisfaction_flag){
      resetAllFlags();
+
+      for(int n=0; n < NUM_LEDS; n++) { 
+      leds[n] = CRGB::Black;
+   }
+
+      FastLED.show();
+      delay(1000);
+      
       leds[0] = CRGB::Red;
+
+       FastLED.show();
+      delay(2000);
+      
       leds[1].r = 255;
       leds[1].g = 100;
       leds[1].b = 0;
       leds[2].r = 255;
       leds[2].g = 100;
       leds[2].b = 0;
+
+      FastLED.show();
+      delay(2000);
+      
       leds[3] = CRGB::White;
       leds[4] = CRGB::White;
+
+      FastLED.show();
+      delay(2000);
+      
       for(int n=5; n < 26; n++) { 
       leds[n] = CRGB::Yellow;
    }
+
+   FastLED.show();
+      delay(2000);
    for(int n=26; n < 50; n++) { 
       leds[n] = CRGB::Green;
    }
+
+  FastLED.show();
+      delay(2000);
      satisfaction_flag = true;
-     FastLED.show();
-     delay(500);
   }
   
   if (Serial.available() > 0) {

@@ -316,24 +316,28 @@ void loop() {
    }
 
       FastLED.show();
-      delay(1000);
+      delay(5000);
       
       leds[0] = CRGB::Red;
 
        FastLED.show();
-      delay(2000);
+      delay(5000);
       
       leds[1].r = 255;
       leds[1].g = 100;
       leds[1].b = 0;
+      FastLED.show();
+      delay(1000);
       leds[2].r = 255;
       leds[2].g = 100;
       leds[2].b = 0;
 
       FastLED.show();
-      delay(2000);
+      delay(5000);
       
       leds[3] = CRGB::White;
+      FastLED.show();
+      delay(1000);
       leds[4] = CRGB::White;
 
       FastLED.show();
@@ -341,12 +345,16 @@ void loop() {
       
       for(int n=5; n < 26; n++) { 
       leds[n] = CRGB::Yellow;
+      FastLED.show();
+      delay(100);
    }
 
    FastLED.show();
       delay(2000);
    for(int n=26; n < 50; n++) { 
       leds[n] = CRGB::Green;
+      FastLED.show();
+      delay(100);
    }
 
   FastLED.show();

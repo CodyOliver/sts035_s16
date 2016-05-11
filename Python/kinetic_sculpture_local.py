@@ -123,7 +123,8 @@ def sendToMotorsCmd(values):
         ball_commands2 = values[10:20]
         ball_commands3 = values[20:30]
         ball_commands4 = values[30:40]
-        ball_commands5 = values[40:50]
+        ball_commands5 = values[45:50]
+	ball_commands5 = ball_commands5 + values[40:45]
 
         send(1,linear,ball_commands1)
         send(2,linear,ball_commands2)
@@ -240,6 +241,9 @@ def displayState(i):
         GPIO.output(pin2, 1)
         GPIO.output(pin3, 1)
         GPIO.output(pin4, 1)
+    elif(i==8):
+        GPIO.output(pin1, 1)
+
     '''
     add more states...
     '''
@@ -301,6 +305,12 @@ def onKeyPress(event):
 
     elif character == '6':
         displayState(6)
+
+    elif character == '7':
+        displayState(7)
+
+    elif character == '8':
+        displayState(8)
 
     elif character == "g":
 	cmd = 20

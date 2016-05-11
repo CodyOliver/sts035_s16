@@ -11,7 +11,7 @@ import RPi.GPIO as GPIO
 
 pin1 = 10
 pin2 = 9
-pin3 = 04
+pin3 = 18
 pin4 = 17
 pin5 = 27
 
@@ -75,6 +75,19 @@ def packLED(list_of_colors):
     print string
     return string
 
+
+def convertToInts(values):
+
+    if max(values)<255:
+	return values
+    else:
+	new_values = [0]*len(values)
+	ratio = 255.0/max(values)
+	for i in range(len(values)):
+	    new_values[i] = int(values[i]*ratio)
+	return new_values
+			    
+
 def sendToLED(value):
 
 
@@ -88,11 +101,15 @@ def sendToLED(value):
         string +=struct.pack('!B',i)
         
     ser.write(string)
-    ser.write("hello")
-    print string
+    #ser.write("hello")
+    #print string
     return 1
 
 def sendToMotorsCmd(values):
+    #print values
+
+    values = convertToInts(values)
+
     print values
 
     current_positions = values
@@ -110,9 +127,9 @@ def sendToMotorsCmd(values):
 
         send(1,linear,ball_commands1)
         send(2,linear,ball_commands2)
-        #send(3,linear,ball_commands3)
-        #send(4,linear,ball_commands4)
-        #send(5,linear,ball_commands5)
+        send(3,linear,ball_commands3)
+        send(4,linear,ball_commands4)
+        send(5,linear,ball_commands5)
 
     
     else:
@@ -133,12 +150,13 @@ def send(i,cmd,positions):
     elif i == 5:
         address = address5
     try:
+	print str(address)+"-"+str(cmd)+"-"+str(positions)
         bus.write_i2c_block_data(address, cmd, positions) 
     except IOError as e:
 	print "error sending to "+str(i)
         print e
 
-    #time.sleep(2)
+    #time.sleep(1)
 
 
 def reset():
@@ -148,6 +166,11 @@ def reset():
 def fullLength():
     values = 50*[254]
     sendToMotorsCmd(values)
+
+def level():
+    data = 50*[0]
+    data[0:20] = [8,11,14,20,10,5,1,14,7,16,10,5,14,24,4,12,4,4,4,4]
+    sendToMotorsCmd(data)
 
 def showBalls(num,rad):
 
@@ -195,7 +218,11 @@ def displayState(i):
     resetDisplay()
 
     if(i==1):
+	GPIO.output(pin1, 0)
         GPIO.output(pin2, 1)
+        GPIO.output(pin3, 0)
+        GPIO.output(pin4, 0)
+        GPIO.output(pin5, 0)
     elif(i==2):
         GPIO.output(pin3, 1)
     elif(i==3):
@@ -229,9 +256,7 @@ def onKeyPress(event):
         sendToLED([1])
 
     elif character == "l":
-        data = 50*[0]
-	data[0:20] = [8,11,14,20,10,5,1,14,7,16,10,5,14,24,4,12,4,4,4,4]
-	sendToMotorsCmd(data)
+	level()
 
     elif character == "9":
 	sailboat = 50*[0]
@@ -256,16 +281,10 @@ def onKeyPress(event):
         #sendToMotorsCmd([0,0,0,0,0,0,0,0,0,0])
         
     elif character == '1':
-	while True:
-	    graph1()
-	    time.sleep(10)
-	    graph2()
-	    time.sleep(10)
-	    graph0()
-	    time.sleep(10)
-        #graph1()
-        #displayState(1)
-        #sendToMotorsCmd([40,10,20,250,250,250,250,70,80,250])
+	#graph1()
+	level()
+	displayState(1)
+	ser.write("satisfy,")
 
     elif character == '2':
         graph2()
@@ -331,6 +350,7 @@ def onKeyPress(event):
 
     elif character == 'b':
         color(selectedIndex,'blue')
+	ser.write("ball,")
 
     elif character == 'g':
         color(selectedIndex,'green')
@@ -355,7 +375,7 @@ def color(ball_id_number, color):
 
 def graph0():
     # graph some data plot 
-    thread1 = ballThread(1, "Graph-0",'red', .1,[10,20,30,40,50,60,70,60,50,40,30,20,10,20,30,40,50,60,70,60,50,40])
+    thread1 = ballThread(1, "Graph-0",'red', .1,[10,20,30,40,50,60,70,60,50,40,30,20,10,20,30,40,50,60,70,60,50,40,30,20,10,20,30,40,50,60,70,60,50,40,30,20,10,20,30,40,50,60,70,60,50,40,30,20,10])
     thread1.start()
 
 def graph1():

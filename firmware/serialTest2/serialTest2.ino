@@ -24,6 +24,19 @@ String message = "";
 int delayRainbow = 20;
 
 boolean rainbow_flag = false;
+boolean color_flag = false;
+boolean bouncing_ball_flag = false;
+boolean satisfaction_flag = false;
+
+int bouncing_ball_i = 0;
+
+void resetAllFlags(){
+ rainbow_flag = false;
+  color_flag = false;
+ bouncing_ball_flag = false; 
+  satisfaction_flag = false; 
+
+}
 
 
 void setup() {
@@ -76,8 +89,21 @@ void convertLEDCommands(){
    current_str = message.substring(i,i+1);
  
    if (header_str=="rainbow"){
-     rainbow_flag = !rainbow_flag;
+     resetAllFlags();
+     rainbow_flag = true;
+   }
+   
+   else if (header_str=="ball"){
+     resetAllFlags();
+      for(int n=0; n < NUM_LEDS; n++) { 
+      leds[n] = CRGB::Black;
+   }
+     bouncing_ball_flag = true;
+     bouncing_ball_i = 0;
      
+   }else if (header_str="satisfy"){
+      resetAllFlags();
+     satisfaction_flag = true;
    }
 	
 
@@ -262,6 +288,46 @@ void loop() {
     } } // slowly cycle the "base color" through the rainbow
 
   EVERY_N_SECONDS( 5 ) { delayRainbow = random(1,40); } // change patterns periodically
+  }
+  
+  else if(bouncing_ball_flag){
+    
+    leds[bouncing_ball_i].b = 200;
+    
+    FastLED.show();
+    
+    leds[bouncing_ball_i] = CRGB::Black;
+    
+    bouncing_ball_i++;
+    
+    if(bouncing_ball_i>=NUM_LEDS){
+     bouncing_ball_i = 0; 
+    }
+    
+    
+    delay(100); 
+  }
+  
+  else if(satisfaction_flag){
+     resetAllFlags();
+      leds[0] = CRGB::Red;
+      leds[1].r = 255;
+      leds[1].g = 100;
+      leds[1].b = 0;
+      leds[2].r = 255;
+      leds[2].g = 100;
+      leds[2].b = 0;
+      leds[3] = CRGB::White;
+      leds[4] = CRGB::White;
+      for(int n=5; n < 26; n++) { 
+      leds[n] = CRGB::Yellow;
+   }
+   for(int n=26; n < 50; n++) { 
+      leds[n] = CRGB::Green;
+   }
+     satisfaction_flag = true;
+     FastLED.show();
+     delay(500);
   }
   
   if (Serial.available() > 0) {

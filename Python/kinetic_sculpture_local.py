@@ -285,29 +285,36 @@ def onKeyPress(event):
         #sendToMotorsCmd([0,0,0,0,0,0,0,0,0,0])
         
     elif character == '1':
-	#graph1()
-	level()
-	displayState(1)
-	ser.write("satisfy,")
+    	#graph1()
+    	level()
+    	displayState(1)
+    	ser.write("satisfy,")
+        satisfaction()
 
     elif character == '2':
         graph2()
         displayState(2)
+        mit_sports()
 
     elif character == '3':
         displayState(3)
+        underwear()
 
     elif character == '4':
         displayState(4)
+        mit_buildings()
 
     elif character == '5':
         displayState(5)
+        women_at_mit()
 
     elif character == '6':
         displayState(6)
+        equality()
 
     elif character == '7':
         displayState(7)
+        major()
 
     elif character == '8':
         displayState(8)
@@ -406,6 +413,15 @@ def graph2():
     thread2 = ballThread(1,"Import-Graph",'green',.1,[300, 293, 286, 279, 272, 264, 256, 248, 240, 232, 224, 216, 208, 200, 193, 186, 179, 172, 164, 156, 148, 140, 132, 124, 116, 108, 100, 93, 86, 79, 72, 64, 56, 48, 40, 32, 24, 16, 8, 0])
     thread2.start()
 
+def equality():
+    [300-0.136*300]*5+[300-0.207*300]*5+[300-0.078*300]*5+[300-0.093*300]*5+[0]*30
+
+    rgb = [(255,0,0)]*10+[(0,0,255)]*10 + [(0,0,0)]*30
+
+    thread3 = ballThread(1,"Equality",rgb,.1,ball_positions)
+    thread3.start()
+
+
 def student_pop_graph():
     ball_positions = [295.57381394116089, 294.06307977736549, 292.68486615425388, 294.30161675059634, 294.61966604823749, 290.24648820567188, 283.85899814471242, 278.08110257089851, 273.20434667373445, 268.64564007421149, 268.24807845216009, 266.15425390935593, 259.50172276702887, 262.97376093294463, 260.80042406573017, 258.41505433342166, 252.05406838059901, 251.78902729923138, 210.84018022793535, 222.97906175457194, 228.78346143652266, 216.43254704479193, 231.72541743970316, 225.97402597402598, 217.83726477604029, 219.21547839915186, 259.23668168566127, 156.00318049297641, 170.81897694142592, 158.25602968460112, 136.23111582295255, 133.31566392790882, 116.45905115292871, 99.443413729127997, 84.680625496952047, 91.942751126424582, 75.192154783991498, 64.617015637423833, 47.945931619401023, 44.871455075536687, 46.488205671879172, 44.818446859263162, 40.524781341107882, 36.363636363636374, 35.70103366021732, 26.557116353034758, 29.499072356215208, 27.034190299496402, 11.264245958123524, 0.0]
 
@@ -419,6 +435,47 @@ def student_pop_graph():
     rgb = [(r[i],g[i],b[i]) for i in range(len(r))]
 
     thread3 = ballThread(1,"Student-population-graph",rgb,.1,ball_positions)
+    thread3.start()
+
+def major():
+    ball_positions = [293, 293, 254, 254, 287, 287, 296, 296, 293, 293, 221, 221, 285, 285, 279, 279, 289, 289, 281, 281, 298, 298, 298, 298, 293, 293, 291, 291, 285, 285, 298, 298, 274, 274, 282, 282, 297, 297, 297, 297, 299, 299, 0, 0, 0, 0, 0, 0, 0, 0]
+    
+    for i in range(len(ball_positions)):
+        ball_positions[i] = int(ball_positions[i])
+
+    r = [random.randint(0,255) for i in range(50)]
+    g = [random.randint(0,255) for i in range(50)]
+    b = [random.randint(0,255) for i in range(50)]
+
+    rgb = [(r[i],g[i],b[i]) for i in range(len(r))]
+
+    thread3 = ballThread(1,"Major",rgb,.1,ball_positions)
+    thread3.start()
+
+def pressure():
+    ball_positions = [180, 180, 192, 192, 81, 81, 197, 197, 164, 164, 197, 197, 150, 150, 161, 161, 163, 163, 50, 50, 192, 192, 189, 189, 250, 250, 183, 183, 70, 70, 218, 218, 151, 151, 246, 246, 98, 98, 217, 217, 249, 249, 0, 0, 0, 0, 0, 0, 0, 0]
+
+    for i in range(len(ball_positions)):
+        ball_positions[i] = int(ball_positions[i])
+
+    r = [random.randint(0,255) for i in range(50)]
+    g = [random.randint(0,255) for i in range(50)]
+    b = [random.randint(0,255) for i in range(50)]
+
+    rgb = [(r[i],g[i],b[i]) for i in range(len(r))]
+
+    thread3 = ballThread(1,"Pressure",rgb,.1,ball_positions)
+    thread3.start()
+
+def underwear():
+    ball_positions = [150]*50
+
+    for i in range(len(ball_positions)):
+        ball_positions[i] = int(ball_positions[i])
+
+    [(0,0,255)]*11+[(255,255,255)]*10+[(0,0,0)]*9+[(216,66,120)]*6+[(154,161,159)]*4+[(98,45,145)]*3+[(0,255,255)]*3+[(0,255,0)]*2+[(255,0,0)]+[(255,100,0)]
+
+    thread3 = ballThread(1,"Underwear",rgb,.1,ball_positions)
     thread3.start()
 
 def satisfaction():
